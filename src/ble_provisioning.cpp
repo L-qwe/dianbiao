@@ -1,6 +1,6 @@
 /**
  * @file ble_provisioning.cpp
- * @brief 与验针机一致的 BLE 配网协议，增加安东运行状态特征 a05
+ * @brief 与验针机一致的 BLE 配网协议，增加电表运行状态特征 a05
  */
 
 #include "app_log.h"
@@ -52,8 +52,7 @@ class WifiCredentialsCallback : public NimBLECharacteristicCallbacks {
         if (separator < 0) separator = payload.indexOf(',');
         String ssid = separator < 0 ? payload : payload.substring(0, separator);
         String pass = separator < 0 ? String("") : payload.substring(separator + 1);
-        ssid.trim();
-        pass.trim();
+        // Preserve credentials byte-for-byte, including valid leading/trailing spaces.
 
         if (web_portal_set_wifi_credentials_from_ble(ssid, pass)) {
             _pending_status = "CONNECTING";
@@ -95,7 +94,7 @@ void andon_ble_init(void) {
     NimBLEService* service = _server->createService(SERVICE_UUID);
 
     NimBLECharacteristic* credentials = service->createCharacteristic(
-        CHAR_WIFI_CRED_UUID, NIMBLE_PROPERTY::WRITE);
+        CHAR_WIFI_CRED_UUID, NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR);
     credentials->setCallbacks(new WifiCredentialsCallback());
 
     _status_char = service->createCharacteristic(

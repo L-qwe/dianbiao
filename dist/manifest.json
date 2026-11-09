@@ -1,20 +1,20 @@
 [
   {
-    "file": "DianBiao_v1.0.8_16MB_ota.bin",
+    "file": "DianBiao_v1.0.10_16MB_ota.bin",
     "environment": "esp32-s3-devkitc-1",
-    "version": "v1.0.8",
-    "bytes": 1085872,
-    "md5": "c7dd175589960592d143fcf9691fe89d",
-    "sha256": "52f9ec397022c06deb2ef387245cf6b24e17c41ea2e30cee82023494061df376",
+    "version": "v1.0.10",
+    "bytes": 1211712,
+    "md5": "b429bfffdbda57c75306460a2b314eb0",
+    "sha256": "d396132ecf2510b0e857c611e007f399f3408cbf4381992c26c528fcddaa213f",
     "purpose": "OTA application only"
   },
   {
-    "file": "DianBiao_v1.0.8_16MB_factory.bin",
+    "file": "DianBiao_v1.0.10_16MB_factory.bin",
     "environment": "esp32-s3-devkitc-1",
-    "version": "v1.0.8",
-    "bytes": 1151408,
-    "md5": "d1ac000ea680a4acf42b99b48d22f050",
-    "sha256": "c7226d03696a5f2b86cd293c2d270b3496d3a47f3adce5be7c032e027ab22046",
+    "version": "v1.0.10",
+    "bytes": 1277248,
+    "md5": "134e72e01b21f61bf8fa1e1de5ad144a",
+    "sha256": "f54cc0993e45d38b7568d02055046b4819ae0ca45d40e9cc3ee7c18f29d66e95",
     "purpose": "Initial serial flash at 0x0"
   }
 ]

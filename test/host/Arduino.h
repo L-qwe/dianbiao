@@ -25,6 +25,9 @@ public:
  bool concat(const char* s){append(s);return true;}
  bool isEmpty()const{return empty();}
  bool startsWith(const char* s)const{return rfind(s,0)==0;}
+ bool endsWith(const char* s)const{size_t n=strlen(s);return size()>=n && compare(size()-n,n,s)==0;}
+ void remove(unsigned at){erase(at);}
+ void remove(unsigned at,unsigned count){erase(at,count);}
  friend String operator+(const String&a,const String&b){return std::string(a)+std::string(b);}
 };
 inline uint32_t fakeMillis=0;

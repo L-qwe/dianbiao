@@ -17,6 +17,7 @@
 #include "meter_pulse.h"
 #include "web_portal.h"
 #include "ble_provisioning.h"
+#include "device_access_reporter.h"
 #include "mqtt_handler.h"
 #include "ntp_time.h"
 #include "ota_handler.h"
@@ -41,6 +42,7 @@ void setup() {
 void loop() {
     web_portal_loop();      // DNS + WiFi 状态迁移 + 延迟重启
     andon_ble_loop();       // BLE 状态通知/广播保活
+    device_access_report_loop(); // 后台向 APP 平台登记/刷新设备信息
     meter_pulse_loop();     // 收集脉冲增量 + 周期写 NVS
     mqtt_maintain();        // 连接/心跳/电量上报/指令
     if (WiFi.status() == WL_CONNECTED) ota_check();

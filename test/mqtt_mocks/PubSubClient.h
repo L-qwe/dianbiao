@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <chrono>
 #include <cassert>
+#include <vector>
 #define MQTT_MAX_PACKET_SIZE 256
 inline std::atomic<bool> releaseHandshake{false},handshakeActive{false},connectResult{false};
 inline std::atomic<unsigned> connectCalls{0},concurrentAccess{0},publishCalls{0};
@@ -16,7 +17,8 @@ class PubSubClient {
  WiFiClient& transport;
  void check(){if(handshakeActive.load()&&std::this_thread::get_id()!=handshakeThread)++concurrentAccess;}
 public:
- unsigned timeout=0,capacity=MQTT_MAX_PACKET_SIZE;String cid,payload;
+ unsigned timeout=0,capacity=MQTT_MAX_PACKET_SIZE;String cid,payload,publishedTopic,subscribedTopic;
+ std::vector<String> messages;
  PubSubClient(WiFiClient& t):transport(t){}
  void setServer(const char*,int){}bool setBufferSize(uint16_t n){check();if(failBufferAllocation)return false;capacity=n;return true;}
  uint16_t getBufferSize(){check();return capacity;}
@@ -28,13 +30,13 @@ public:
   while(!releaseHandshake.load())std::this_thread::sleep_for(std::chrono::milliseconds(1));
   bool result=connectResult.load();transport.online=result;handshakeActive=false;return result;
  }
- bool subscribe(const char*){check();return transport.online.load();}
+ bool subscribe(const char* topic){check();subscribedTopic=topic;return transport.online.load();}
  void disconnect(){check();transport.stop();}
  bool connected(){check();return transport.online.load();}
  void loop(){check();}
  bool publish(const char* topic,const uint8_t* data,unsigned length){
   check();if(5+2+strlen(topic)+length>capacity)return false;
-  payload.assign(reinterpret_cast<const char*>(data),length);++publishCalls;return transport.online.load();
+  payload.assign(reinterpret_cast<const char*>(data),length);publishedTopic=topic;messages.push_back(payload);++publishCalls;return transport.online.load();
  }
 };
 using TaskHandle_t=void*;

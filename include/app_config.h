@@ -45,7 +45,7 @@ extern int     g_cfg_mqtt_port;
 extern String  g_cfg_mqtt_client_id;
 extern String  g_cfg_mqtt_username;
 extern String  g_cfg_mqtt_password;
-extern String  g_cfg_mqtt_pub_topic;   // 支持 "{MAC}" 占位符
+extern String  g_cfg_mqtt_pub_topic;   // {MAC}=带冒号, MAC=无冒号；仅用于 Topic
 extern String  g_cfg_mqtt_sub_topic;
 
 // ── NTP ─────────────────────────────────────────────────────────

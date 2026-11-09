@@ -11,5 +11,6 @@ String andon_ble_name(void);
 String andon_common_info_json(void);
 String andon_runtime_info_json(void);
 String andon_device_info_json(void);
+String andon_device_access_report_json(void);
 
 #endif

@@ -64,10 +64,11 @@ static String json_escape(const String& value) {
     return out;
 }
 
-// ── topic {MAC} 展开 ────────────────────────────────────────────
+// Topic: {MAC} keeps separators; bare MAC expands without separators.
 static String expand_topic(const String& pattern, const String& def_prefix) {
     String t = pattern;
-    t.replace("{MAC}", g_dev_mac_nc);
+    t.replace("{MAC}", g_dev_mac);
+    t.replace("MAC", g_dev_mac_nc);
     if (t.length() == 0) t = def_prefix + g_dev_mac_nc;
     return t;
 }
@@ -205,7 +206,7 @@ bool mqtt_pub(const String& payload) {
     return ok;
 }
 
-// Heartbeats and periodic energy reports share the same compact totals.
+// Periodic energy reports contain the compact channel totals.
 static void append_meter_totals(String& body) {
     body += F(",\"meters\":[");
     for (int i = 0; i < METER_CHANNELS; i++) {
@@ -226,7 +227,7 @@ void mqtt_heartbeat(void) {
     if (!mqtt_connected()) return;
 
     String body;
-    body.reserve(1600);
+    body.reserve(512);
     body += F("{\"");
     body += g_dev_mac_nc;
     body += F("_online\":true,\"msg_type\":\"heartbeat\",\"dev_mac\":\"");
@@ -249,7 +250,6 @@ void mqtt_heartbeat(void) {
     body += String((unsigned)ESP.getFreeHeap());
     body += F(",\"report_interval_s\":");
     body += String((unsigned long)g_cfg_report_interval_s);
-    append_meter_totals(body);
     body += '}';
     mqtt_pub(body);
 }

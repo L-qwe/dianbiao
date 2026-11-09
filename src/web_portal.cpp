@@ -2,6 +2,7 @@
 #include "web_portal.h"
 #include "web_assets.h"
 #include "web_settings.h"
+#include "device_info.h"
 #include "app_log.h"
 #include "meter_pulse.h"
 #include "mqtt_handler.h"
@@ -233,6 +234,11 @@ void web_portal_init() {
     auto page=[](){server->sendHeader("Cache-Control","no-store");server->send_P(200,"text/html; charset=utf-8",WEB_PAGE);};
     for(const char* path:{"/","/config","/mqtt","/wifi","/pw","/connecting","/ota_web"})server->on(path,HTTP_GET,page);
     server->on("/api/status",HTTP_GET,send_status);
+    // APP uses this route for both the device hotspot and its LAN address.
+    server->on("/api/device-info",HTTP_GET,[]{
+        server->sendHeader("Cache-Control","no-store");
+        server->send(200,"application/json; charset=utf-8",andon_device_info_json());
+    });
     server->on("/api/config",HTTP_GET,send_config);
     server->on("/api/config",HTTP_POST,[]{DynamicJsonDocument d(8192);if(body(d))save_settings(d.as<JsonObjectConst>());});
     server->on("/api/meters",HTTP_POST,[]{DynamicJsonDocument d(8192);if(body(d))save_meters(d.as<JsonObjectConst>());});

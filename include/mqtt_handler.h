@@ -6,8 +6,8 @@
  *   {"<MAC>_online":true,"version":"v1.x","ip":"192.168.1.23","rssi":-55,
  *    "time":"2026-10-30 12:00:00","ntp_ok":true,"uptime_s":1234,
  *    "free_heap":200000,"report_interval_s":60,"msg_type":"heartbeat",
- *    "dev_mac":"AA:BB:...","device_name":"12路电表采集",
- *    "meters":[{"ch":1,"name":"电表01","energy_kwh":203.38},...]}
+ *    "dev_mac":"AA:BB:...","device_name":"12路电表采集"}
+ *   心跳不包含 meters；电量通过下面的 meter_energy 单独上报。
  *
  * 电量上报 (pub topic):
  *   {"msg_type":"meter_energy","dev_mac":"AA:BB:...","time":"...","report_index":42,

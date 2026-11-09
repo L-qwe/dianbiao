@@ -1,6 +1,12 @@
 # DianBiao · 12 路电表脉冲采集
 
-ESP32-S3 N16R8（16 MB Flash、8 MB OPI PSRAM），固件版本 `v1.0.8`。
+后续项目复用入口：[智能硬件通用开发指南](docs/智能硬件通用开发指南.md)，包含 MQTT、Wi-Fi/BLE 配网、OTA、热点 Web 与布局风格、设备管理 API、三端分类兼容、开发顺序及验收模板。
+
+ESP32-S3 N16R8（16 MB Flash、8 MB OPI PSRAM），固件版本 `v1.0.10`。
+
+v1.0.10 将 MQTT 心跳精简为设备状态，不再携带 `meters`；12 路电量继续通过 `meter_energy` 按配置周期单独上报，`report_now` 仍分别发送心跳和电量两条报文。Topic 中 `{MAC}` 展开为带冒号的大写 MAC，裸 `MAC` 展开为无冒号的大写 MAC，支持混用和重复。已有 Topic 模板保留，升级后按新规则展开；默认 `dianbiao/meter/{MAC}` 会变为带冒号 Topic，上位机需同步订阅/发布。需要无冒号可配置 `dianbiao/meter/MAC`。见 [v1.0.10 验证记录](docs/验证记录-v1.0.10.md)。
+
+v1.0.9 参考 Yanzhenji2.0 补齐移动 APP 接入协议：热点/局域网新增 `GET /api/device-info`，与 BLE a04 共用公共设备信息并返回 `wifi_port`、`wifi_status`；BLE 凭证支持普通写入与无响应写入，保留密码中的空格。联网后在后台向同一平台登记，成功每 60 秒刷新、失败每 15 秒重试。电表广播仍为 `DianBiao_<12位MAC>`，默认热点仍为 `DianBiao_<6位MAC>`；APP 的“设备类型管理”须已有标识为 `DianBiao_` 的电表类型才能显示扫描结果。APP 源码未修改。接口、验证范围和升级步骤见 [v1.0.9 验证记录](docs/验证记录-v1.0.9.md)。
 
 v1.0.8 修复总电量在网页与 MQTT 中末位不一致的问题。此前网页使用 JavaScript `toFixed(3)`，MQTT/BLE 使用 ESP32 `String(double, 3)`，两条格式化路径在舍入边界可能相差 0.001kWh。现统一在设备端四舍五入到三位小数并输出同一数值文本，网页、MQTT、BLE 共用；不修改脉冲数、初始电量或内部计量精度。初始 85858、常数 1600、4 个脉冲统一输出 `85858.003`。见 [v1.0.8 验证记录](docs/验证记录-v1.0.8.md)。
 
@@ -50,4 +56,4 @@ pwsh -NoProfile -File scripts/package_firmware.ps1
 
 预览：[桌面总览](docs/overview-desktop-v1.0.7.png) · [手机总览](docs/overview-mobile-v1.0.7.png) · [手机采集配置](docs/config-mobile-v1.0.7.png) · [MQTT/系统配置](docs/mqtt-desktop-v1.0.7.png)。截图使用模拟数据。
 
-当前验证详情见 [v1.0.8 验证记录](docs/验证记录-v1.0.8.md)，总览与报文说明见 [v1.0.7 验证记录](docs/验证记录-v1.0.7.md)，诊断日志见 [v1.0.5 验证记录](docs/验证记录-v1.0.5.md)，毛刺过滤见 [v1.0.4 验证记录](docs/验证记录-v1.0.4.md)，中断配置修复见 [v1.0.3 验证记录](docs/验证记录-v1.0.3.md)，Web 重构的历史验证见 [v1.0.2 验证记录](docs/验证记录-v1.0.2.md)，接口与实现见 [Web 架构](docs/Web架构.md)。实际热点延迟和连续采集还需实板验证。
+当前 APP 接入与验证详情见 [v1.0.9 验证记录](docs/验证记录-v1.0.9.md)，总电量舍入见 [v1.0.8 验证记录](docs/验证记录-v1.0.8.md)，总览与报文说明见 [v1.0.7 验证记录](docs/验证记录-v1.0.7.md)，诊断日志见 [v1.0.5 验证记录](docs/验证记录-v1.0.5.md)，毛刺过滤见 [v1.0.4 验证记录](docs/验证记录-v1.0.4.md)，中断配置修复见 [v1.0.3 验证记录](docs/验证记录-v1.0.3.md)，Web 重构的历史验证见 [v1.0.2 验证记录](docs/验证记录-v1.0.2.md)，接口与实现见 [Web 架构](docs/Web架构.md)。实际热点延迟和连续采集还需实板验证。

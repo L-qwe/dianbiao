@@ -10,18 +10,37 @@
 #include "ntp_time.h"
 #include <WiFi.h>
 
+static const char* wifi_status_name(wl_status_t status) {
+    switch (status) {
+        case WL_IDLE_STATUS: return "idle";
+        case WL_NO_SSID_AVAIL: return "no_ssid_available";
+        case WL_SCAN_COMPLETED: return "scan_completed";
+        case WL_CONNECTED: return "connected";
+        case WL_CONNECT_FAILED: return "connect_failed";
+        case WL_CONNECTION_LOST: return "connection_lost";
+        case WL_DISCONNECTED: return "disconnected";
+        default: return "unknown";
+    }
+}
+
 static String json_escape(const String& value) {
     String out;
     out.reserve(value.length() + 8);
     for (size_t i = 0; i < value.length(); i++) {
-        const char c = value[i];
+        const uint8_t c = static_cast<uint8_t>(value[i]);
         switch (c) {
             case '\"': out += F("\\\""); break;
             case '\\': out += F("\\\\"); break;
             case '\n': out += F("\\n"); break;
             case '\r': out += F("\\r"); break;
             case '\t': out += F("\\t"); break;
-            default:   out += c; break;
+            default:
+                if (c < 0x20) {
+                    char escaped[7];
+                    snprintf(escaped, sizeof(escaped), "\\u%04X", c);
+                    out += escaped;
+                } else out += static_cast<char>(c);
+                break;
         }
     }
     return out;
@@ -34,21 +53,26 @@ String andon_ble_name(void) {
 }
 
 String andon_common_info_json(void) {
-    const bool wifi_conn = WiFi.status() == WL_CONNECTED;
+    const wl_status_t status = WiFi.status();
+    const bool wifi_conn = status == WL_CONNECTED;
     String j;
     j.reserve(360);
     j += F("{\"mac_address\":\"");
     j += WiFi.macAddress();
     j += F("\",\"firmware_version\":\"");
-    j += FIRMWARE_VERSION;
+    j += json_escape(FIRMWARE_VERSION);
     j += F("\",\"firmware_type\":\"");
-    j += FIRMWARE_TYPE;
+    j += json_escape(FIRMWARE_TYPE);
     j += F("\",\"ble_name\":\"");
     j += andon_ble_name();
     j += F("\",\"wifi_ssid\":\"");
     if (wifi_conn) j += json_escape(WiFi.SSID());
     j += F("\",\"wifi_ip\":\"");
     if (wifi_conn) j += WiFi.localIP().toString();
+    j += F("\",\"wifi_port\":");
+    j += String(g_cfg_web_port);
+    j += F(",\"wifi_status\":\"");
+    j += wifi_status_name(status);
     j += F("\",\"wifi_connected\":");
     j += wifi_conn ? F("true") : F("false");
     j += F(",\"mqtt_connected\":");
@@ -59,6 +83,25 @@ String andon_common_info_json(void) {
     j += json_escape(g_cfg_ap_ssid.length() ? g_cfg_ap_ssid
                     : String(F("DianBiao_")) + mac.substring(6));
     j += F("\"}");
+    return j;
+}
+
+String andon_device_access_report_json(void) {
+    if (WiFi.status() != WL_CONNECTED) return String();
+    // Match the platform fields used by Yanzhenji2.0, without its power/SD fields.
+    String j;
+    j.reserve(320);
+    j += F("{\"mac_address\":\"");
+    j += WiFi.macAddress();
+    j += F("\",\"firmware_version\":\"");
+    j += json_escape(FIRMWARE_VERSION);
+    j += F("\",\"firmware_type\":\"");
+    j += json_escape(FIRMWARE_TYPE);
+    j += F("\",\"wifi_ip\":\"");
+    j += WiFi.localIP().toString();
+    j += F("\",\"wifi_port\":");
+    j += String(g_cfg_web_port);
+    j += F(",\"wifi_connected\":true,\"wifi_status\":\"connected\"}");
     return j;
 }
 

@@ -6,7 +6,7 @@
 #include "app_config.h"
 #include <Preferences.h>
 
-const char* FIRMWARE_VERSION = "v1.0.8";
+const char* FIRMWARE_VERSION = "v1.0.10";
 const char* FIRMWARE_TYPE    = "DianBiao 电表脉冲采集";
 
 // ── 默认值 ──────────────────────────────────────────────────────
